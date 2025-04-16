@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     # ----------------------------
-    "chats",
+
+    "apps.accounts",
+    "apps.chats",
 ]
 
 MIDDLEWARE = [
@@ -137,7 +139,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-# AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.UsernameOrEmail',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

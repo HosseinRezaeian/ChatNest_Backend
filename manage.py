@@ -2,7 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import sys
+from pathlib import Path
 
+# Add the apps directory to Python path
 
 def main():
     """Run administrative tasks."""
