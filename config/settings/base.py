@@ -72,10 +72,25 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'Your API',
+    'DESCRIPTION': 'API documentation',
     'VERSION': '1.0.0',
+
     'SERVE_INCLUDE_SCHEMA': False,
+
+    'SECURITY': [  # <- این خط باعث می‌شه دکمه Authorize نمایش داده بشه
+        {'BearerAuth': []},
+    ],
+
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            },
+        },
+    },
 }
 
 TEMPLATES = [
