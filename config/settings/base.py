@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-_du_@d!7(5(6h6g$=omlv17g76txr+t#30(i1-^yrvf=5!_68p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     # ----------------------------
     'rest_framework',
     'drf_spectacular',
+    'channels',
     # ----------------------------
 
     "apps.accounts",
     "apps.chats",
+    "apps.testws",
 ]
 
 MIDDLEWARE = [
@@ -110,9 +112,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
+ASGI_APPLICATION = 'config.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 DATABASES = {
     'default': {
