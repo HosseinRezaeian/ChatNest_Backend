@@ -44,6 +44,7 @@ urlpatterns += [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("api/",include("apps.chats.api.urls")),
     path('api/user/', include('apps.accounts.api.urls')),
+    path('api/contacts/', include('apps.contacts.api.urls')),
 ]
 
 if settings.DEBUG:
