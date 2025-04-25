@@ -3,10 +3,10 @@ import json
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = "chatroom"  # اسم گروه
+        self.room_name = "chatroom"
         self.room_group_name = f"chat_{self.room_name}"
 
-        # عضو کردن کانکشن به گروه
+
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -16,7 +16,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({"message": "connected to chatroom"}))
 
     async def disconnect(self, close_code):
-        # خروج از گروه هنگام قطع اتصال
+
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
@@ -26,7 +26,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message = data.get("message")
 
-        # ارسال پیام به همه اعضای گروه
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -36,7 +36,7 @@ class MyConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        # این تابع به همه اعضای گروه اجرا میشه
+
         message = event["message"]
 
         await self.send(text_data=json.dumps({

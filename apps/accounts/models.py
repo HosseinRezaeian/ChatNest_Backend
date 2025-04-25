@@ -6,6 +6,9 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractUser,PermissionsMixin,BaseUserManager
 
+from utils.abstract.models import AbstractHashId
+from utils.abstract.serializers import AbstractHashidSerializer
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username,password=None, **extra_fields):
@@ -21,7 +24,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(email,username, password, **extra_fields)
 
-class CustomUser(AbstractUser,PermissionsMixin):
+class CustomUser(AbstractUser,PermissionsMixin,AbstractHashId):
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
     objects = CustomUserManager()
     USERNAME_FIELD = 'username'
