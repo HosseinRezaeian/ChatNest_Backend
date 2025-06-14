@@ -27,6 +27,7 @@ from rest_framework_simplejwt.views import (
 from django.conf import settings
 from django.conf.urls.static import static
 
+from apps.accounts.api.views import CustomTokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,7 +41,7 @@ urlpatterns = [
 
 
 urlpatterns += [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("api/",include("apps.chats.api.urls")),
     path('api/user/', include('apps.accounts.api.urls')),

@@ -14,3 +14,14 @@ class UsernameOrEmail(ModelBackend):
         if user.check_password(password):
             return user
         return None
+
+class Email(ModelBackend):
+    def authenticate(self, request, email=None, password=None, **kwargs):
+        userModel=get_user_model()
+        try:
+            user=userModel.objects.get(email=email)
+        except userModel.DoesNotExist:
+            return None
+        if user.check_password(password):
+            return user
+        return None
