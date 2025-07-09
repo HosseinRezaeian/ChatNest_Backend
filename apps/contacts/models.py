@@ -10,3 +10,7 @@ class Contact(AbstractHashId):
     source = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='user_source')
     target = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='user_target')
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['source', 'target'], name='unique_contact')
+        ]
