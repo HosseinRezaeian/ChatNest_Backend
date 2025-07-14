@@ -3,6 +3,7 @@ from hashid_field.rest import HashidSerializerCharField
 from  rest_framework import serializers
 
 from apps.accounts.api.serializer import UserReadSerializer
+from apps.chats.api.validations.privateRoom import validatePrivateRoom
 # from apps.accounts.api.serializer import UserReadSerializer
 from apps.chats.models import Room, Message, UserRoom
 from config import settings
@@ -15,7 +16,7 @@ class UserRoomSerializer(AbstractHashidSerializer):
     class Meta:
         model = User
         fields = [
-            "id"
+            "id","username",
         ]
 
 
@@ -30,6 +31,9 @@ class RoomSerializer(serializers.ModelSerializer):
             "creator",
             "members"
         ]
+    def validate(self, data):
+        validatePrivateRoom(data)
+        return data
 
     def create(self, validated_data):
         members = validated_data.pop("members")
@@ -38,7 +42,7 @@ class RoomSerializer(serializers.ModelSerializer):
             UserRoom(room=room, user_id=user_id["id"])
             for user_id in members
         ]
-        if validated_data.get("creator") .id not in members:
+        if validated_data.get("creator").id not in members:
             user_rooms.append(UserRoom(room=room, user=validated_data["creator"]))
         UserRoom.objects.bulk_create(user_rooms)
         return room
@@ -73,7 +77,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class RoomReadSerializer(AbstractHashidSerializer):
-
+    members = UserRoomSerializer(many=True)
     creator = UserReadSerializer()
     class Meta:
         model = Room
@@ -81,7 +85,9 @@ class RoomReadSerializer(AbstractHashidSerializer):
             "name",
             "id",
             "creator",
+            "members",
         ]
+
 
 
 

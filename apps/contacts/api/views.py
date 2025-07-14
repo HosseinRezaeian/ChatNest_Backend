@@ -42,7 +42,7 @@ class ContactView(GenericViewSet):
     def add_contact(self, request):
         user = self.request.user
         search = request.query_params.get("search")
-        search_contact=User.objects.filter(email__icontains=search).first()
+        search_contact=User.objects.filter(email=search).first()
         if not search_contact:
             raise ValidationError({"detail": "not found"})
 
@@ -50,7 +50,7 @@ class ContactView(GenericViewSet):
             raise ValidationError({"detail": "you cant add your self in contacts"})
 
         contacts = Contact.objects.create(source=user,target=search_contact)
-        return Response(ContactSerializer(contacts, many=True).data)
+        return Response(ContactSerializer(contacts).data, status=status.HTTP_201_CREATED)
 
     def destroy(self, request, *args, **kwargs):
 

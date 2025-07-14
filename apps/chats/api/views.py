@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets
 
 from apps.chats.api.serializers import RoomSerializer, MessageSerializer, RoomReadSerializer
@@ -9,6 +10,10 @@ class RoomViewSet(viewsets.ModelViewSet):
     serializer_class = RoomSerializer
     queryset = Room.objects.all()
 
+    def get_queryset(self):
+        if self.action in ["list", "retrieve"]:
+            return self.request.user.rooms_as_member.all()
+        return super().get_queryset()
     def get_serializer_class(self):
         if self.action == "retrieve" or self.action == "list":
             return RoomReadSerializer
