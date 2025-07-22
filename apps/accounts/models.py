@@ -22,11 +22,16 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser, PermissionsMixin, AbstractHashId):
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
+    email = models.EmailField(unique=True)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']  # درستش اینه
+    REQUIRED_FIELDS = ['username']
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["email","username"], name='unique_email&username')
+        ]
 
     groups = models.ManyToManyField(
         'auth.Group',

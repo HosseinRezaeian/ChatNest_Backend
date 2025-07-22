@@ -1,23 +1,44 @@
 from django.db.models import Q
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from apps.chats.api.serializers import RoomSerializer, MessageSerializer, RoomReadSerializer
-from apps.chats.models import Room, Message
+from apps.chats.api.serializers import MessageSerializer, PrivateRoomSerializer, PrivateRoomSerializerCreate
+from apps.chats.models import  Message,PrivateRoom
 
 
-class RoomViewSet(viewsets.ModelViewSet):
-    model = Room
-    serializer_class = RoomSerializer
-    queryset = Room.objects.all()
+class PrivateRoomViewSet(mixins.ListModelMixin,
+                         mixins.RetrieveModelMixin,
+                         viewsets.GenericViewSet):
+    model = PrivateRoom
+    serializer_class = PrivateRoomSerializer
+    queryset = PrivateRoom.objects.all()
 
     def get_queryset(self):
         if self.action in ["list", "retrieve"]:
-            return self.request.user.rooms_as_member.all()
+            user = self.request.user
+            return PrivateRoom.objects.filter(Q(user1=user) | Q(user2=user))
+
         return super().get_queryset()
     def get_serializer_class(self):
-        if self.action == "retrieve" or self.action == "list":
-            return RoomReadSerializer
-        return RoomSerializer
+        return PrivateRoomSerializer
+
+    @extend_schema(
+        request=PrivateRoomSerializerCreate,
+        responses={
+            200: PrivateRoomSerializer,
+            400: OpenApiResponse(description="Invalid input data")
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="create-or-get")
+    def create_or_get_room(self, request):
+        serializer = PrivateRoomSerializerCreate(data=request.data,context={'request': request})
+        if serializer.is_valid():
+            room = serializer.save()
+            return Response(PrivateRoomSerializer(room).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MessageViewSet(viewsets.ModelViewSet):
     model = Message
