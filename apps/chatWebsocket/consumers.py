@@ -24,6 +24,9 @@ class MyConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        user = self.scope["user"]
+
+        print(user)
         message = data.get("message")
 
 

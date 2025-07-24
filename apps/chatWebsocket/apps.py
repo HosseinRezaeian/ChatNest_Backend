@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class TestwsConfig(AppConfig):
+class ChatWebsocketConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.testws'
+    name = 'apps.chatWebsocket'

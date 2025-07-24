@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  service-redis:
+    image: redis:6.2-alpine
+    container_name: ChatNest-redis
+    ports:
+      - ${REDIS_PORT_OUT}:6379
+    restart: on-failure

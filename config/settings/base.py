@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.chats",
     "apps.contacts",
-    "apps.testws",
+    "apps.chatWebsocket",
 ]
 
 MIDDLEWARE = [
