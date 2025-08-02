@@ -42,6 +42,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/socket/', include("apps.chatWebsocket.api.urls"), name='socket_token'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("api/",include("apps.chats.api.urls")),
     path('api/user/', include('apps.accounts.api.urls')),
