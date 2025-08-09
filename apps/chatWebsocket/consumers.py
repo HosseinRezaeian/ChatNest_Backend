@@ -6,54 +6,19 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
 from urllib.parse import parse_qs
+
+from itsdangerous import TimestampSigner, SignatureExpired, BadSignature
+
 # from django.contrib.auth import get_user_model
 
 from config import settings
 
 from django.utils import timezone
 
-
-class MyConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.room_name = "chatroom"
-        self.room_group_name = f"chat_{self.room_name}"
+from config.settings import TOKEN_SOCKET_SINGER
 
 
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
 
-        await self.accept()
-        await self.send(text_data=json.dumps({"message": "connected to chatroom"}))
-
-    async def disconnect(self, close_code):
-
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        message = data.get("message")
-
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "message": message,
-            }
-        )
-
-    async def chat_message(self, event):
-
-        message = event["message"]
-
-        await self.send(text_data=json.dumps({
-            "message": message
-        }))
 
 
 @database_sync_to_async
@@ -73,6 +38,25 @@ def get_user_from_token(token):
     except Exception:
         return None
 
+@database_sync_to_async
+def verify_token(token):
+    signer = TimestampSigner(TOKEN_SOCKET_SINGER)
+    try:
+        from django.contrib.auth import get_user_model  # ✅ اینجا import کن
+        User = get_user_model()                         # ✅ اینجا صداش بزن
+
+
+
+        user_id = signer.unsign(token, max_age=300).decode()  # 300 ثانیه = 5 دقیقه
+        return User.objects.get(id=user_id)  # اگر درست بود، ID کاربر رو برمی‌گردونه
+    except SignatureExpired:
+        print("توکن منقضی شده")
+        return None
+    except BadSignature:
+        print("توکن نامعتبر یا دستکاری شده")
+        return None
+
+
 
 class chat_message(AsyncWebsocketConsumer):
     async def connect(self):
@@ -80,9 +64,14 @@ class chat_message(AsyncWebsocketConsumer):
         query_params = parse_qs(query_string)
         token = query_params.get('token', [None])[0]
 
-        self.user = await get_user_from_token(token)
+        self.user = await verify_token(token)
 
-        if not self.user :
+        if not self.user:
+            # پیام خطا بفرست به کلاینت
+            await self.send_json({
+                "error": "token_expired",
+
+            })
             await self.close()
             return
 
@@ -107,18 +96,21 @@ class chat_message(AsyncWebsocketConsumer):
                 "type": "chat_message",
                 "message": message,
                 "user": str(self.user.id),
+                "user_email": str(self.user.email),
             }
         )
 
     async def chat_message(self, event):
         message = event["message"]
         user = event["user"]
+        user_email = event["user_email"]
         now = timezone.now()
         await save_message(user, message, self.room_name)
 
         await self.send(text_data=json.dumps({
             "message": message,
             "user": user,
+            "user_email": user_email,
             "time":str(now)
         }))
 
