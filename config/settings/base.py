@@ -12,15 +12,19 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_PATH = os.path.join(BASE_DIR,  '.env')
+load_dotenv(dotenv_path=ENV_PATH)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_du_@d!7(5(6h6g$=omlv17g76txr+t#30(i1-^yrvf=5!_68p'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -184,5 +188,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-HASHID_FIELD_SALT = 'my_super_secret_salt_9372x'
+HASHID_FIELD_SALT = os.getenv('HASHID_FIELD_SALT')
+TOKEN_SOCKET_SINGER=  os.getenv('TOKEN_SOCKET_SINGER')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
