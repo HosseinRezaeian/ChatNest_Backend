@@ -26,5 +26,5 @@ class PrivateRoom(BaseRoom):
 
 class Message(AbstractHashId, AbstractCreateUpdateModel):
     text = models.CharField(max_length=255)
-    room_id = models.ForeignKey(BaseRoom, on_delete=models.CASCADE)
+    room = models.ForeignKey(BaseRoom, on_delete=models.CASCADE,related_name='messages')
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)

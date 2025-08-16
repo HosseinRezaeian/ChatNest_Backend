@@ -19,10 +19,7 @@ class UserRoomSerializer(AbstractHashidSerializer):
         ]
 
 
-class MessageSerializer(AbstractHashidSerializer):
-    class Meta:
-        model = Message
-        fields = '__all__'
+
 
 
 class PrivateRoomSerializer(AbstractHashidSerializer):
@@ -50,6 +47,7 @@ class PrivateRoomSerializerCreate(AbstractHashidSerializer):
 
 
 class MessageSerializer(AbstractHashidSerializer):
+    sender = UserReadSerializer(read_only=True)
     class Meta:
         model = Message
-        fields = '__all__'
+        fields = ['sender','text',"id","created"]

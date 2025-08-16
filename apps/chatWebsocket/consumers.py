@@ -24,7 +24,7 @@ from config.settings import TOKEN_SOCKET_SINGER
 @database_sync_to_async
 def save_message(sender, message, room_id):
     from apps.chats.models import Message
-    return Message.objects.create(sender_id=sender, text=message, room_id_id=room_id)
+    return Message.objects.create(sender_id=sender, text=message, room_id=room_id)
 
 @database_sync_to_async
 def get_user_from_token(token):

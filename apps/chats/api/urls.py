@@ -8,7 +8,7 @@ router_room = DefaultRouter()
 router_room.register('private_rooms', PrivateRoomViewSet)
 
 router_message = DefaultRouter()
-router_message.register('Messages', MessageViewSet)
+router_message.register('messages', MessageViewSet)
 
 
 urlpatterns = [
