@@ -30,11 +30,9 @@ def save_message(sender, message, room_id):
 
 @database_sync_to_async
 def get_user_from_token(token):
-
     try:
         from django.contrib.auth import get_user_model  # ✅ اینجا import کن
         User = get_user_model()                         # ✅ اینجا صداش بزن
-
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         user = User.objects.get(id=payload.get("user_id"))
         return user
@@ -45,16 +43,13 @@ def get_user_from_token(token):
 @database_sync_to_async
 def verify_token(token: str):
     User = get_user_model()
-
     try:
-        # دیکد کردن توکن
         payload = jwt.decode(
             token,
-            settings.SECRET_KEY,  # کلید امضا (همونی که برای login استفاده میشه)
-            algorithms=["HS256"]  # الگوریتم
+            settings.SECRET_KEY,
+            algorithms=["HS256"]
         )
-
-        user_id = payload.get("user_id")  # گرفتن user_id از payload
+        user_id = payload.get("user_id")
         if not user_id:
             return None
 
@@ -76,16 +71,9 @@ class ChatMessage(AsyncWebsocketConsumer):
         token = query_params.get('token', [None])[0]
 
         self.user = await verify_token(token)
-
-        # if not self.user:
-        #     # پیام خطا بفرست به کلاینت
-        #     await self.send_json({
-        #         "error": "token_expired",
-        #
-        #     })
-        #     await self.close()
-        #     return
-
+        if not self.user:
+            await self.close(code=4001)  # یا هر کدی
+            return
         other_user_id = self.scope["url_route"]["kwargs"]["other_user_id"]
         self.room_name = other_user_id
         self.room_group_name = f"chat_{self.room_name}"
@@ -97,23 +85,22 @@ class ChatMessage(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-
-
         message = data.get("message")
         user = data.get("user")
+        if self.user and message:
+            message_created=await save_message(self.user.id, message, self.room_name)
+            if message_created:
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "chat_message",
+                        "message": message,
+                        "user": str(self.user.id),
+                        "user_email": str(self.user),
+                    }
+                )
 
 
-        await save_message(user, message, self.room_name)
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                "type": "chat_message",
-                "message": message,
-                "user": str(self.user),
-                "user_email": str(self.user),
-            }
-        )
 
     async def chat_message(self, event):
 
